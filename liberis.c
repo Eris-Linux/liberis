@@ -21,8 +21,6 @@
 
 // ---------------------- Private macros.
 
-#define REPLY_STATUS_OK     0
-#define REPLY_STATUS_ERROR -1
 #define REST_API_PREFIX     "http://host.docker.internal:8080"
 
 
@@ -61,137 +59,202 @@ int eris_get_list_of_gpio(char *buffer, size_t size)
 		errno = EINVAL;
 		return -1;
 	}
-	return perform_request(REST_API_PREFIX "/api/gpio/list", "GET", buffer, size);
-}
-
-
-
-int eris_request_gpio_for_input(const char *name)
-{
-	char reply[128];
-	char request[128];
-
-	if (name == NULL) {
-		errno = EINVAL;
-		return -1;
-	}
-
-	snprintf(request, 127, "%s/api/gpio?name=%s&direction=in", REST_API_PREFIX, name);
-	int err = perform_request(request, "GET", reply, 128);
-	if ((err == 0) && (strcmp(reply, "Ok") == 0))
+	int err = perform_request(REST_API_PREFIX "/api/gpio/list", "GET", buffer, size);
+	switch (err) {
+		case 0:
+			errno = 0;
 			return 0;
-	if (err == 400)
-		errno = EINVAL;
-	else if (err == 403)
-		errno = EALREADY;
-	else if (err == 404)
-		errno = ENODEV;
-	else if (err == 500)
-		errno = EIO;
-	return -1;
-}
-
-
-
-int eris_request_gpio_for_output(const char *name, int value)
-{
-	char reply[128];
-	char request[128];
-	int  ret = -1;
-
-	if (name == NULL) {
-		errno = EINVAL;
-		return ret;
+		default:
+			errno = ENODEV;
+			break;
 	}
-
-	snprintf(request, 127, "%s/api/gpio?name=%s&direction=out&value=%d", REST_API_PREFIX, name, value);
-	int err = perform_request(request, "GET", reply, 128);
-	if ((err == 0) && (strcmp(reply, "Ok") == 0))
-		return 0;
-	if (err == 400)
-		errno = EINVAL;
-	else if (err == 403)
-		errno = EALREADY;
-	else if (err == 404)
-		errno = ENODEV;
-	else if (err == 500)
-		errno = EIO;
 	return -1;
 }
 
 
 
-int eris_release_gpio(const char *name)
-{
-	char reply[128];
-	char request[128];
-	int  ret = -1;
-
-	if (name == NULL) {
-		errno = EINVAL;
-		return ret;
-	}
-
-	snprintf(request, 127, "%s/api/gpio?name=%s", REST_API_PREFIX, name);
-	int err = perform_request(request, "DELETE", reply, 128);
-	if ((err == 0) && (strcmp(reply, "Ok") == 0))
-		return 0;
-	if (err == 400)
-		errno = EINVAL;
-	else if (err == 404)
-		errno = ENODEV;
-	return -1;
-}
-
-
-
-int eris_read_gpio_value(const char *name)
+int eris_request_gpio_for_input(const char *id)
 {
 	char reply[128];
 	char request[128];
 
-	if (name == NULL) {
+	if (id == NULL) {
 		errno = EINVAL;
 		return -1;
 	}
-	snprintf(request, 127, "%s/api/gpio/value?name=%s", REST_API_PREFIX, name);
-	int err = perform_request(request, "GET", reply, 128);
-	if (err == 0)
-		return (reply[0] == '1');
-	if (err == 400)
-		errno = EINVAL;
-	else if (err == 404)
-		errno = ENODEV;
+
+	snprintf(request, sizeof(request) - 1, "%s/api/gpio?id=%s&direction=in", REST_API_PREFIX, id);
+	int err = perform_request(request, "POST", reply, sizeof(reply));
+	switch (err) {
+		case 0:
+			errno = 0;
+			return 0;
+		case 400:
+			errno = EINVAL;
+			break;
+		case 404:
+			errno = ENODEV;
+			break;
+		case 409:
+			errno = EALREADY;
+			break;
+		case 500:
+		default:
+			errno = EIO;
+			break;
+	}
 	return -1;
 }
 
 
 
-int eris_write_gpio_value(const char *name, int value)
+int eris_request_gpio_for_output(const char *id, int value)
 {
 	char reply[128];
 	char request[128];
 	int  ret = -1;
 
-	if (name == NULL) {
+	if (id == NULL) {
 		errno = EINVAL;
 		return ret;
 	}
-	snprintf(request, 127, "%s/api/gpio/value?name=%s&value=%d", REST_API_PREFIX, name, value);
-	int err = perform_request(request, "PUT", reply, 128);
-	if ((err == 0) && (strcmp(reply, "Ok") == 0))
-		return 0;
-	if (err == 400)
-		errno = EINVAL;
-	else if (err == 404)
-		errno = ENODEV;
+
+	snprintf(request, sizeof(request) - 1, "%s/api/gpio?id=%s&direction=out&value=%d", REST_API_PREFIX, id, value);
+	int err = perform_request(request, "GET", reply, sizeof(reply));
+	switch (err) {
+		case 0:
+			errno = 0;
+			return 0;
+		case 400:
+			errno = EINVAL;
+			break;
+		case 404:
+			errno = ENODEV;
+			break;
+		case 409:
+			errno = EALREADY;
+			break;
+		case 500:
+		default:
+			errno = EIO;
+			break;
+	}
 	return -1;
 }
 
 
 
-int eris_wait_gpio_edge(const char *name, const char *edge)
+int eris_release_gpio(const char *id)
 {
+	char reply[128];
+	char request[128];
+
+	if (id == NULL) {
+		errno = EINVAL;
+		return -1;
+	}
+
+	snprintf(request, sizeof(request) - 1, "%s/api/gpio?id=%s", REST_API_PREFIX, id);
+	int err = perform_request(request, "DELETE", reply, sizeof(reply));
+	switch (err) {
+		case 0:
+			errno = 0;
+			return 0;
+		case 400:
+			errno = EINVAL;
+			break;
+		case 404:
+			errno = ENODEV;
+			break;
+		case 409:
+			errno = EALREADY;
+			break;
+		case 500:
+		default:
+			errno = EIO;
+			break;
+	}
+	return -1;
+}
+
+
+
+int eris_read_gpio_value(const char *id)
+{
+	char reply[128];
+	char request[128];
+
+	if (id == NULL) {
+		errno = EINVAL;
+		return -1;
+	}
+	snprintf(request, sizeof(request) - 1, "%s/api/gpio/value?id=%s", REST_API_PREFIX, id);
+	int err = perform_request(request, "GET", reply, sizeof(reply));
+	switch (err) {
+		case 0:
+			errno = 0;
+			return (reply[0] == '1');
+		case 400:
+			errno = EINVAL;
+			break;
+		case 404:
+			errno = ENODEV;
+			break;
+		case 409:
+			errno = EPERM;
+			break;
+		case 500:
+		default:
+			errno = EIO;
+			break;
+	}
+	return -1;
+}
+
+
+
+int eris_write_gpio_value(const char *id, int value)
+{
+	char reply[128];
+	char request[128];
+	int  ret = -1;
+
+	if (id == NULL) {
+		errno = EINVAL;
+		return ret;
+	}
+	snprintf(request, sizeof(request) - 1, "%s/api/gpio/value?id=%s&value=%d", REST_API_PREFIX, id, value);
+	int err = perform_request(request, "PUT", reply, 128);
+	switch (err) {
+		case 0:
+			errno = 0;
+			return 0;
+		case 400:
+			errno = EINVAL;
+			break;
+		case 404:
+			errno = ENODEV;
+			break;
+		case 409:
+			errno = EPERM;
+			break;
+		case 500:
+		default:
+			errno = EIO;
+			break;
+	}
+	return -1;
+}
+
+
+
+int eris_wait_gpio_edge(const char *id, const char *edge)
+{
+	(void) id;
+	(void) edge;
+	errno = ENOSYS;
+	return -1;
+/*
 	char reply[128];
 	char request[128];
 
@@ -210,6 +273,7 @@ int eris_wait_gpio_edge(const char *name, const char *edge)
 	else if (err == 500)
 		errno = EIO;
 	return -1;
+*/
 }
 
 
@@ -328,7 +392,7 @@ int eris_get_nameserver_address(char *buffer, size_t size)
 int eris_set_nameserver_address(const char *address)
 {
 	char request[512];
-	
+
 	if (address == NULL) {
 		errno = EINVAL;
 		return -1;
@@ -451,11 +515,160 @@ int eris_get_wifi_quality(const char *interface, char *buffer, size_t size)
 }
 
 
+/******************************* REBOOT **************************************/
+
+int eris_reboot(void)
+{
+	char reply[128];
+
+	if (perform_request(REST_API_PREFIX "/api/reboot/now", "POST", reply, sizeof(reply)) != 0) {
+		errno = EINVAL;
+		return -1;
+	}
+	errno = 0;
+	return 0;
+}
+
+
+
+int eris_get_reboot_pending_flag(void)
+{
+	char reply[128];
+
+	if (perform_request(REST_API_PREFIX "/api/reboot/pending", "GET", reply, sizeof(reply)) != 0) {
+		errno = EIO;
+		return -1;
+	}
+
+	errno = 0;
+	return (strcmp(reply, "yes") == 0);
+}
+
+
+
+int eris_set_reboot_pending_flag(int flag)
+{
+	char request[128];
+	char reply[128];
+
+	snprintf(request, sizeof(request) - 1, "%s/api/reboot/pending?reboot=%s", REST_API_PREFIX, flag ? "yes" : "no");
+	int err = perform_request(request, "PUT", reply, sizeof(reply));
+	switch (err) {
+		case 0:
+			errno = 0;
+			return 0;
+		case 400:
+			errno = EINVAL;
+			break;
+		case 500:
+		default:
+			errno = EIO;
+			break;
+	}
+	return -1;
+}
+
+
+
+int eris_get_automatic_reboot_flag(void)
+{
+	char reply[128];
+
+	if (perform_request(REST_API_PREFIX "/api/reboot/automatic", "GET", reply, sizeof(reply)) != 0) {
+		errno = EIO;
+		return -1;
+	}
+	errno = 0;
+	return (strcmp(reply, "yes") == 0);
+}
+
+
+
+int eris_set_automatic_reboot_flag(int flag)
+{
+	char request[128];
+	char reply[128];
+
+	snprintf(request, sizeof(request) - 1, "%s/api/reboot/automatic?auto=%s", REST_API_PREFIX, flag ? "yes" : "no");
+	int err = perform_request(request, "PUT", reply, sizeof(reply));
+	switch (err) {
+		case 0:
+			errno = 0;
+			return 0;
+		case 400:
+			errno = EINVAL;
+			break;
+		case 500:
+		default:
+			errno = EIO;
+			break;
+	}
+	return -1;
+}
+
+
+
+int eris_rollback(void)
+{
+	char reply[128];
+
+	int err = perform_request(REST_API_PREFIX "/api/reboot/rollback", "POST", reply, sizeof(reply));
+	switch (err) {
+		case 0:
+			errno = 0;
+			return 0;
+		case 501:
+			errno = ENOSYS;
+			break;
+		case 500:
+		default:
+			errno = EIO;
+			break;
+	}
+	return -1;
+}
+
+
+
+int eris_restore_factory_preset(void)
+{
+	char reply[128];
+
+	int err = perform_request(REST_API_PREFIX "/api/reboot/factory", "POST", reply, sizeof(reply));
+	switch (err) {
+		case 0:
+			errno = 0;
+			return 0;
+		case 501:
+			errno = ENOSYS;
+			break;
+		case 500:
+		default:
+			errno = EIO;
+			break;
+	}
+	return -1;
+}
+
+
 /******************************* SBOM ****************************************/
 
 int eris_get_list_of_packages(char *buffer, size_t size)
 {
-	return perform_request(REST_API_PREFIX "/api/package/list", "GET", buffer, size);
+	int err = perform_request(REST_API_PREFIX "/api/sbom/package-list", "GET", buffer, size);
+	switch (err) {
+		case 0:
+			errno = 0;
+			return 0;
+		case 404:
+			errno = ENODEV;
+			break;
+		case 500:
+		default:
+			errno = EIO;
+			break;
+	}
+	return -1;
 }
 
 
@@ -608,36 +821,6 @@ int eris_get_system_update_status(void)
 
 
 
-int eris_get_reboot_needed_flag(void)
-{
-	char reply[128];
-
-	if (perform_request(REST_API_PREFIX "/api/update/reboot/pending", "GET", reply, 128) != 0)
-		return -1;
-
-	if (reply[0] == 'y')
-		return 1;
-
-	if (reply[0] == 'n')
-		return 0;
-
-	errno = EINVAL;
-	return -1;
-}
-
-
-
-int eris_set_reboot_needed_flag(int flag)
-{
-	char request[512];
-	char reply[512];
-
-	snprintf(request, 512, "%s/api/update/reboot/pending?reboot=%s", REST_API_PREFIX, flag ? "yes" : "no");
-	return perform_request(request, "PUT", reply, 128);
-}
-
-
-
 int eris_get_server_contact_period(void)
 {
 	char reply[128];
@@ -673,35 +856,6 @@ int eris_contact_server(void)
 
 
 
-int eris_get_automatic_reboot_flag(void)
-{
-	char reply[128];
-
-	if (perform_request(REST_API_PREFIX "/api/update/reboot/automatic", "GET", reply, 128) != 0)
-		return -1;
-
-	if ((reply[0] == 'Y') || (reply[0] == 'y'))
-		return 1;
-
-	if ((reply[0] == 'N')  || (reply[0] == 'n'))
-		return 0;
-
-	errno = EINVAL;
-	return -1;
-}
-
-
-int eris_set_automatic_reboot_flag(int flag)
-{
-	char request[512];
-	char reply[512];
-
-	snprintf(request, 512, "%s/api/update/reboot/automatic?auto=%s", REST_API_PREFIX, flag ? "yes" : "no");
-	return perform_request(request, "PUT", reply, 128);
-}
-
-
-
 int eris_get_container_update_policy(void)
 {
 	char reply[128];
@@ -727,42 +881,6 @@ int eris_set_container_update_policy(int policy)
 
 	snprintf(request, 512, "%s/api/update/container/policy?policy=%s", REST_API_PREFIX, policy == 1 ? "immediate" : "atreboot");
 	return perform_request(request, "PUT", reply, 128);
-}
-
-
-int eris_restore_factory_preset(void)
-{
-	char reply[128];
-
-	if (perform_request(REST_API_PREFIX "/api/update/factory", "POST", reply, 128) != 0) {
-		errno = EINVAL;
-		return -1;
-	}
-	return 0;
-}
-
-
-int eris_rollback(void)
-{
-	char reply[128];
-
-	if (perform_request(REST_API_PREFIX "/api/update/rollback", "POST", reply, 128) != 0) {
-		errno = EINVAL;
-		return -1;
-	}
-	return 0;
-}
-
-
-int eris_reboot(void)
-{
-	char reply[128];
-
-	if (perform_request(REST_API_PREFIX "/api/update/reboot/now", "POST", reply, 128) != 0) {
-		errno = EINVAL;
-		return -1;
-	}
-	return 0;
 }
 
 
@@ -1029,7 +1147,7 @@ static int perform_request(const char *url, const char *method, char *reply, siz
 
 	if (memory.size == 0)
 		return 0;
-	
+
 	if (size >= memory.size + 1) { // memory.size doesn't count the final '\0'
 		memcpy(reply, memory.string, memory.size);
 		reply[memory.size] = '\0';
