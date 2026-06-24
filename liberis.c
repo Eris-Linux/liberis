@@ -56,8 +56,8 @@ static pthread_once_t easy_curl_once;
 int eris_contact_server(void)
 {
 	char reply[128];
-
 	int err = perform_request(REST_API_PREFIX "/api/contact/now", "POST", reply, sizeof(reply));
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -67,6 +67,7 @@ int eris_contact_server(void)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -75,8 +76,8 @@ int eris_contact_server(void)
 int eris_get_server_contact_period(void)
 {
 	char reply[128];
-
 	int err = perform_request(REST_API_PREFIX "/api/contact/period", "GET", reply, sizeof(reply));
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -86,6 +87,7 @@ int eris_get_server_contact_period(void)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -94,10 +96,14 @@ int eris_get_server_contact_period(void)
 int eris_set_server_contact_period(int period)
 {
 	char request[128];
-	char reply[128];
+	if (snprintf(request, sizeof(request) - 1, "%s/api/contact/period?period=%d", REST_API_PREFIX, period) >= sizeof(request) - 1) {
+		errno = EINVAL;
+		return -1;
+	}
 
-	snprintf(request, sizeof(request) - 1, "%s/api/contact/period?period=%d", REST_API_PREFIX, period);
+	char reply[128];
 	int err = perform_request(request, "PUT", reply, sizeof(reply));
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -113,6 +119,7 @@ int eris_set_server_contact_period(int period)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -122,8 +129,8 @@ int eris_set_server_contact_period(int period)
 int eris_get_number_of_slots(void)
 {
 	char reply[32];
-
 	int err = perform_request(REST_API_PREFIX "/api/container/count", "GET", reply, sizeof(reply));
+
 	switch (err) {
 		case 0:
 			int count;
@@ -138,6 +145,7 @@ int eris_get_number_of_slots(void)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -145,15 +153,19 @@ int eris_get_number_of_slots(void)
 
 int eris_get_container_name(int slot, char *buffer, size_t size)
 {
-	char request[128];
-
 	if ((buffer == NULL) || (size == 0)) {
 		errno = EINVAL;
 		return -1;
 	}
 
-	snprintf(request, sizeof(request) - 1, "%s/api/container/name?index=%d", REST_API_PREFIX, slot);
+	char request[128];
+	if (snprintf(request, sizeof(request) - 1, "%s/api/container/name?index=%d", REST_API_PREFIX, slot) >= sizeof(request) - 1) {
+		errno = EINVAL;
+		return -1;
+	}
+
 	int err = perform_request(request, "GET", buffer, size);
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -166,6 +178,7 @@ int eris_get_container_name(int slot, char *buffer, size_t size)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -174,10 +187,14 @@ int eris_get_container_name(int slot, char *buffer, size_t size)
 int eris_get_container_presence(int slot)
 {
 	char request[128];
-	char reply[128];
+	if (snprintf(request, sizeof(request) - 1, "%s/api/container/presence?index=%d", REST_API_PREFIX, slot) >= sizeof(request) - 1) {
+		errno = EINVAL;
+		return -1;
+	}
 
-	snprintf(request, sizeof(request) - 1, "%s/api/container/presence?index=%d", REST_API_PREFIX, slot);
+	char reply[128];
 	int err = perform_request(request, "GET", reply, sizeof(reply));
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -190,6 +207,7 @@ int eris_get_container_presence(int slot)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -197,15 +215,19 @@ int eris_get_container_presence(int slot)
 
 int eris_get_container_status(int slot, char *buffer, size_t size)
 {
-	char request[128];
-
 	if ((buffer == NULL) || (size == 0)) {
 		errno = EINVAL;
 		return -1;
 	}
 
-	snprintf(request, sizeof(request) - 1, "%s/api/container/status?index=%d", REST_API_PREFIX, slot);
+	char request[128];
+	if (snprintf(request, sizeof(request) - 1, "%s/api/container/status?index=%d", REST_API_PREFIX, slot) >= sizeof(request) - 1) {
+		errno = EINVAL;
+		return -1;
+	}
+
 	int err = perform_request(request, "GET", buffer, size);
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -218,6 +240,7 @@ int eris_get_container_status(int slot, char *buffer, size_t size)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -225,15 +248,19 @@ int eris_get_container_status(int slot, char *buffer, size_t size)
 
 int eris_get_container_version(int slot, char *buffer, size_t size)
 {
-	char request[128];
-
 	if ((buffer == NULL) || (size == 0)) {
 		errno = EINVAL;
 		return -1;
 	}
 
-	snprintf(request, sizeof(request) - 1, "%s/api/container/version?index=%d", REST_API_PREFIX, slot);
+	char request[128];
+	if (snprintf(request, sizeof(request) - 1, "%s/api/container/version?index=%d", REST_API_PREFIX, slot) >= sizeof(request) - 1) {
+		errno = EINVAL;
+		return -1;
+	}
+
 	int err = perform_request(request, "GET", buffer, size);
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -246,6 +273,7 @@ int eris_get_container_version(int slot, char *buffer, size_t size)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -254,9 +282,8 @@ int eris_get_container_version(int slot, char *buffer, size_t size)
 int eris_get_container_update_policy(void)
 {
 	char reply[128];
-
 	int err = perform_request(REST_API_PREFIX "/api/container/policy", "GET", reply, sizeof(reply));
-		return -1;
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -269,6 +296,7 @@ int eris_get_container_update_policy(void)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -277,11 +305,14 @@ int eris_get_container_update_policy(void)
 int eris_set_container_update_policy(int policy)
 {
 	char request[128];
-	char reply[128];
-
-	snprintf(request, sizeof(request) - 1, "%s/api/container/policy?policy=%s", REST_API_PREFIX, policy == 1 ? "immediate" : "atreboot");
-	int err = perform_request(request, "PUT", reply, sizeof(reply));
+	if (snprintf(request, sizeof(request) - 1, "%s/api/container/policy?policy=%s", REST_API_PREFIX, policy == 1 ? "immediate" : "atreboot") >= sizeof(request) - 1) {
+		errno = EINVAL;
 		return -1;
+	}
+
+	char reply[128];
+	int err = perform_request(request, "PUT", reply, sizeof(reply));
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -294,6 +325,7 @@ int eris_set_container_update_policy(int policy)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -306,7 +338,9 @@ int eris_get_list_of_gpio(char *buffer, size_t size)
 		errno = EINVAL;
 		return -1;
 	}
+
 	int err = perform_request(REST_API_PREFIX "/api/gpio/list", "GET", buffer, size);
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -315,6 +349,7 @@ int eris_get_list_of_gpio(char *buffer, size_t size)
 			errno = ENODEV;
 			break;
 	}
+
 	return -1;
 }
 
@@ -322,16 +357,20 @@ int eris_get_list_of_gpio(char *buffer, size_t size)
 
 int eris_request_gpio_for_input(const char *id)
 {
-	char reply[128];
-	char request[128];
-
 	if (id == NULL) {
 		errno = EINVAL;
 		return -1;
 	}
 
-	snprintf(request, sizeof(request) - 1, "%s/api/gpio?id=%s&direction=in", REST_API_PREFIX, id);
+	char request[128];
+	if (snprintf(request, sizeof(request) - 1, "%s/api/gpio?id=%s&direction=in", REST_API_PREFIX, id) >= sizeof(request) - 1) {
+		errno = EINVAL;
+		return -1;
+	}
+
+	char reply[128];
 	int err = perform_request(request, "POST", reply, sizeof(reply));
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -350,6 +389,7 @@ int eris_request_gpio_for_input(const char *id)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -357,17 +397,20 @@ int eris_request_gpio_for_input(const char *id)
 
 int eris_request_gpio_for_output(const char *id, int value)
 {
-	char reply[128];
-	char request[128];
-	int  ret = -1;
-
 	if (id == NULL) {
 		errno = EINVAL;
-		return ret;
+		return -1;
 	}
 
-	snprintf(request, sizeof(request) - 1, "%s/api/gpio?id=%s&direction=out&value=%d", REST_API_PREFIX, id, value);
+	char request[128];
+	if (snprintf(request, sizeof(request) - 1, "%s/api/gpio?id=%s&direction=out&value=%d", REST_API_PREFIX, id, value) >= sizeof(request) - 1) {
+		errno = EINVAL;
+		return -1;
+	}
+
+	char reply[128];
 	int err = perform_request(request, "GET", reply, sizeof(reply));
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -386,6 +429,7 @@ int eris_request_gpio_for_output(const char *id, int value)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -393,16 +437,20 @@ int eris_request_gpio_for_output(const char *id, int value)
 
 int eris_release_gpio(const char *id)
 {
-	char reply[128];
-	char request[128];
-
 	if (id == NULL) {
 		errno = EINVAL;
 		return -1;
 	}
 
-	snprintf(request, sizeof(request) - 1, "%s/api/gpio?id=%s", REST_API_PREFIX, id);
+	char request[128];
+	if (snprintf(request, sizeof(request) - 1, "%s/api/gpio?id=%s", REST_API_PREFIX, id) >= sizeof(request) - 1) {
+		errno = EINVAL;
+		return -1;
+	}
+
+	char reply[128];
 	int err = perform_request(request, "DELETE", reply, sizeof(reply));
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -421,6 +469,7 @@ int eris_release_gpio(const char *id)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -428,15 +477,20 @@ int eris_release_gpio(const char *id)
 
 int eris_read_gpio_value(const char *id)
 {
-	char reply[128];
-	char request[128];
-
 	if (id == NULL) {
 		errno = EINVAL;
 		return -1;
 	}
-	snprintf(request, sizeof(request) - 1, "%s/api/gpio/value?id=%s", REST_API_PREFIX, id);
+
+	char request[128];
+	if (snprintf(request, sizeof(request) - 1, "%s/api/gpio/value?id=%s", REST_API_PREFIX, id) >= sizeof(request) - 1) {
+		errno = EINVAL;
+		return -1;
+	}
+
+	char reply[128];
 	int err = perform_request(request, "GET", reply, sizeof(reply));
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -455,6 +509,7 @@ int eris_read_gpio_value(const char *id)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -462,16 +517,20 @@ int eris_read_gpio_value(const char *id)
 
 int eris_write_gpio_value(const char *id, int value)
 {
-	char reply[128];
-	char request[128];
-	int  ret = -1;
-
 	if (id == NULL) {
 		errno = EINVAL;
-		return ret;
+		return -1;
 	}
-	snprintf(request, sizeof(request) - 1, "%s/api/gpio/value?id=%s&value=%d", REST_API_PREFIX, id, value);
-	int err = perform_request(request, "PUT", reply, 128);
+
+	char request[128];
+	if (snprintf(request, sizeof(request) - 1, "%s/api/gpio/value?id=%s&value=%d", REST_API_PREFIX, id, value) >= sizeof(request) - 1) {
+		errno = EINVAL;
+		return -1;
+	}
+
+	char reply[128];
+	int err = perform_request(request, "PUT", reply, sizeof(reply));
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -490,6 +549,7 @@ int eris_write_gpio_value(const char *id, int value)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -509,7 +569,10 @@ int eris_wait_gpio_edge(const char *id, const char *edge)
 		errno = EINVAL;
 		return -1;
 	}
-	snprintf(request, 127, "%s/api/gpio/edge?name=%s&type=%s", REST_API_PREFIX, name, edge);
+	if (snprintf(request, sizeof(request) - 1, "%s/api/gpio/edge?name=%s&type=%s", REST_API_PREFIX, name, edge) >= sizeof(request) - 1) {
+		errno = EINVAL;
+		return -1;
+	}
 	int err = perform_request(request, "GET", reply, 128);
 	if ((err == 0) && (strcmp(reply, "Ok") == 0))
 		return 0;
@@ -532,40 +595,96 @@ int eris_get_list_of_network_interfaces(char *buffer, size_t size)
 		errno = EINVAL;
 		return -1;
 	}
-	return perform_request(REST_API_PREFIX "/api/network/interface/list", "GET", buffer, size);
+
+	int err = perform_request(REST_API_PREFIX "/api/network/interface/list", "GET", buffer, size);
+
+	switch (err) {
+		case 0:
+			errno = 0;
+			return 0;
+		case 404:
+			errno = ENODEV;
+			break;
+		case 500:
+		default:
+			errno = EIO;
+			break;
+	}
+
+	return -1;
 }
 
 
 
 int eris_get_network_interface_status(const char *interface, char *buffer, size_t size)
 {
-	char request[128];
-
 	if ((interface == NULL) || (buffer == NULL) || (size == 0)) {
 		errno = EINVAL;
 		return -1;
 	}
-	snprintf(request, 127, "%s/api/network/interface/status?name=%s", REST_API_PREFIX, interface);
-	return perform_request(request, "GET", buffer, size);
+
+	char request[128];
+	if (snprintf(request, sizeof(request) - 1, "%s/api/network/interface/status?name=%s", REST_API_PREFIX, interface) >= sizeof(request) - 1) {
+		errno = EINVAL;
+		return -1;
+	}
+
+	int err = perform_request(request, "GET", buffer, size);
+
+	switch (err) {
+		case 0:
+			errno = 0;
+			return 0;
+		case 400:
+			errno = EINVAL;
+			break;
+		case 404:
+			errno = ENODEV;
+			break;
+		case 500:
+		default:
+			errno = EIO;
+			break;
+	}
+
+	return -1;
 }
 
 
 
 int eris_set_network_interface_status(const char *interface, const char *status)
 {
-	char reply[128];
-	char request[128];
-	int  ret;
 
 	if ((interface == NULL) || (status == NULL)) {
 		errno = EINVAL;
 		return -1;
 	}
-	snprintf(request, 127, "%s/api/network/interface/status?name=%s&status=%s", REST_API_PREFIX, interface, status);
-	if ((ret = perform_request(request, "PUT", reply, 128)) != 0)
-		return ret;
-	if (strcmp(reply, "Ok") == 0)
-		return 0;
+
+	char request[128];
+	if (snprintf(request, sizeof(request) - 1, "%s/api/network/interface/status?name=%s&status=%s", REST_API_PREFIX, interface, status) >= sizeof(request) - 1) {
+		errno = EINVAL;
+		return -1;
+	}
+
+	char reply[128];
+	int err = perform_request(request, "PUT", reply, sizeof(reply)) ;
+
+	switch (err) {
+		case 0:
+			errno = 0;
+			return 0;
+		case 400:
+			errno = EINVAL;
+			break;
+		case 404:
+			errno = ENODEV;
+			break;
+		case 500:
+		default:
+			errno = EIO;
+			break;
+	}
+
 	return -1;
 }
 
@@ -573,21 +692,45 @@ int eris_set_network_interface_status(const char *interface, const char *status)
 
 int eris_get_network_interface_config(const char *interface, char *buffer, size_t size)
 {
-	char request[127];
+	if ((interface == NULL) || (buffer == NULL) || (size == 0)) {
+		errno = EINVAL;
+		return -1;
+	}
 
-	snprintf(request, 127, "%s/api/network/interface/config?name=%s", REST_API_PREFIX, interface);
-	return perform_request(request, "GET", buffer, size);
+	char request[128];
+	if (snprintf(request, sizeof(request) - 1, "%s/api/network/interface/config?name=%s", REST_API_PREFIX, interface) >= sizeof(request) - 1) {
+		errno = EINVAL;
+		return -1;
+	}
+
+	int err = perform_request(request, "GET", buffer, size);
+
+	switch (err) {
+		case 0:
+			errno = 0;
+			return 0;
+		case 400:
+			errno = EINVAL;
+			break;
+		case 404:
+			errno = ENODEV;
+			break;
+		case 500:
+		default:
+			errno = EIO;
+			break;
+	}
+
+	return -1;
 }
 
 
 
 int eris_set_network_interface_config(const char *interface, const char *activate,
-                                 const char *mode, const char *ip, 
+                                 const char *mode, const char *ip,
                                  const char *address, const char *netmask,
                                  const char *gateway)
 {
-	char request[1024];
-
 	if ((interface == NULL)
 	 || (strlen(interface) > 32)
 	 || (activate == NULL)
@@ -613,17 +756,32 @@ int eris_set_network_interface_config(const char *interface, const char *activat
 		return -1;
 	}
 
-	snprintf(request, 1024, "%s/api/network/interface/config?name=%s&activate=%s&mode=%s&ip=%s&address=%s&netmask=%s&gateway=%s",
-		REST_API_PREFIX, interface, activate, mode, ip, address, netmask, gateway);
-
-	char reply[512];
-	int err = perform_request(request, "PUT", reply, 512);
-	if (err == 0)
-		return 0;
-	if (err == 400)
+	char request[1024];
+	if (snprintf(request, sizeof(request) - 1, "%s/api/network/interface/config?name=%s&activate=%s&mode=%s&ip=%s&address=%s&netmask=%s&gateway=%s",
+		REST_API_PREFIX, interface, activate, mode, ip, address, netmask, gateway) >= sizeof(request) - 1) {
 		errno = EINVAL;
-	else if (err == 404)
-		errno = ENODEV;
+		return -1;
+	}
+
+	char reply[128];
+	int err = perform_request(request, "PUT", reply, sizeof(reply) - 1);
+
+	switch (err) {
+		case 0:
+			errno = 0;
+			return 0;
+		case 400:
+			errno = EINVAL;
+			break;
+		case 404:
+			errno = ENODEV;
+			break;
+		case 500:
+		default:
+			errno = EIO;
+			break;
+	}
+
 	return -1;
 }
 
@@ -631,27 +789,57 @@ int eris_set_network_interface_config(const char *interface, const char *activat
 
 int eris_get_nameserver_address(char *buffer, size_t size)
 {
-	return perform_request(REST_API_PREFIX "/api/network/dns", "GET", buffer, size);
+	if ((buffer == NULL) || (size == 0)) {
+		errno = EINVAL;
+		return -1;
+	}
+
+	int err = perform_request(REST_API_PREFIX "/api/network/dns", "GET", buffer, size);
+
+	switch (err) {
+		case 0:
+			errno = 0;
+			return 0;
+		case 500:
+		default:
+			errno = EIO;
+			break;
+	}
+
+	return -1;
 }
 
 
 
 int eris_set_nameserver_address(const char *address)
 {
-	char request[512];
-
 	if (address == NULL) {
 		errno = EINVAL;
 		return -1;
 	}
-	snprintf(request, 512, "%s/api/network/dns?address=%s", REST_API_PREFIX, address);
 
-	char reply[512];
-	int err = perform_request(request, "PUT", reply, 512);
-	if (err == 0)
-		return 0;
-	if (err == 400)
+	char request[128];
+	if (snprintf(request, sizeof(request) - 1, "%s/api/network/dns?address=%s", REST_API_PREFIX, address) >= sizeof(request) - 1) {
 		errno = EINVAL;
+		return -1;
+	}
+
+	char reply[128];
+	int err = perform_request(request, "PUT", reply, 512);
+
+	switch (err) {
+		case 0:
+			errno = 0;
+			return 0;
+		case 400:
+			errno = EINVAL;
+			break;
+		case 500:
+		default:
+			errno = EIO;
+			break;
+	}
+
 	return -1;
 }
 
@@ -659,20 +847,36 @@ int eris_set_nameserver_address(const char *address)
 
 int eris_is_network_interface_wireless(const char *interface)
 {
-	char request[512];
-
 	if (interface == NULL) {
 		errno = EINVAL;
 		return -1;
 	}
-	snprintf(request, 512, "%s/api/network/interface/wireless?name=%s", REST_API_PREFIX, interface);
 
-	char reply[512];
-	int err = perform_request(request, "GET", reply, 512);
-	if (err == 0)
-		return (strcmp(reply, "yes") == 0);
-	if (err == 400)
+	char request[128];
+	if (snprintf(request, sizeof(request) - 1, "%s/api/network/interface/wireless?name=%s", REST_API_PREFIX, interface) >= sizeof(request) - 1) {
 		errno = EINVAL;
+		return -1;
+	}
+
+	char reply[128];
+	int err = perform_request(request, "GET", reply, sizeof(reply));
+
+	switch (err) {
+		case 0:
+			errno = 0;
+			return strcmp(reply, "yes") == 0;
+		case 400:
+			errno = EINVAL;
+			break;
+		case 404:
+			errno = EINVAL;
+			break;
+		case 500:
+		default:
+			errno = EIO;
+			break;
+	}
+
 	return -1;
 }
 
@@ -680,21 +884,35 @@ int eris_is_network_interface_wireless(const char *interface)
 
 int eris_scan_wifi(const char *interface, char *buffer, size_t size)
 {
-	char request[512];
-
-	if (interface == NULL) {
+	if ((interface == NULL) || (buffer == NULL) || (size == 0)) {
 		errno = EINVAL;
 		return -1;
 	}
-	snprintf(request, 512, "%s/api/network/wifi?name=%s", REST_API_PREFIX, interface);
+
+	char request[128];
+	if (snprintf(request, sizeof(request) -1, "%s/api/network/wifi?name=%s", REST_API_PREFIX, interface) >= sizeof(request) - 1) {
+		errno = EINVAL;
+		return -1;
+	}
 
 	int err = perform_request(request, "GET", buffer, size);
-	if (err == 0)
-		return 0;
-	if (err == 400)
-		errno = EINVAL;
-	if (err == 404)
-		errno = ENODEV;
+
+	switch (err) {
+		case 0:
+			errno = 0;
+			return 0;
+		case 400:
+			errno = EINVAL;
+			break;
+		case 404:
+			errno = EINVAL;
+			break;
+		case 500:
+		default:
+			errno = EIO;
+			break;
+	}
+
 	return -1;
 }
 
@@ -702,29 +920,42 @@ int eris_scan_wifi(const char *interface, char *buffer, size_t size)
 
 int eris_connect_wifi(const char *interface, const char *ssid, const char *password)
 {
-	char request[512];
-
 	if ((interface == NULL)
 	 || (strlen(interface) > 32)
 	 || (ssid == NULL)
 	 || (strlen(ssid) > 128)
 	 || (password == NULL)
-	 || (strlen(password) > 128)
-	 || (snprintf(request, 512, "%s/api/network/wifi?name=%s&ssid=%s&pass=%s",
-			REST_API_PREFIX, interface, ssid, password) >= 512)) {
+	 || (strlen(password) > 128)) {
+		errno = EINVAL;
+		return -1;
+	}
+
+	char request[512];
+	if (snprintf(request, sizeof(request) - 1, "%s/api/network/wifi?name=%s&ssid=%s&pass=%s",
+			REST_API_PREFIX, interface, ssid, password) >= sizeof(request) - 1) {
 		errno = EINVAL;
 		return -1;
 	}
 
 	char reply[512];
+	int err = perform_request(request, "POST", reply, sizeof(reply));
 
-	int err = perform_request(request, "POST", reply, 512);
-	if (err == 0)
-		return 0;
-	if (err == 400)
-		errno = EINVAL;
-	if (err == 500)
-		errno = EIO;
+	switch (err) {
+		case 0:
+			errno = 0;
+			return 0;
+		case 400:
+			errno = EINVAL;
+			break;
+		case 404:
+			errno = EINVAL;
+			break;
+		case 500:
+		default:
+			errno = EIO;
+			break;
+	}
+
 	return -1;
 }
 
@@ -733,11 +964,18 @@ int eris_connect_wifi(const char *interface, const char *ssid, const char *passw
 int eris_disconnect_wifi(void)
 {
 	char reply[512];
+	int err = perform_request(REST_API_PREFIX "/api/network/wifi", "DELETE", reply, sizeof(reply));
 
-	int err = perform_request(REST_API_PREFIX "/api/network/wifi", "DELETE", reply, 512);
-	if (err == 0)
-		return 0;
-	errno = EINVAL;
+	switch (err) {
+		case 0:
+			errno = 0;
+			return 0;
+		case 500:
+		default:
+			errno = EIO;
+			break;
+	}
+
 	return -1;
 }
 
@@ -745,19 +983,33 @@ int eris_disconnect_wifi(void)
 
 int eris_get_wifi_quality(const char *interface, char *buffer, size_t size)
 {
-	char request[512];
-
-	if ((interface == NULL)
-	 || (strlen(interface) > 32)
-	 || (snprintf(request, 512, "%s/api/network/wifi/quality?name=%s",
-			REST_API_PREFIX, interface) >= 512)) {
+	if ((interface == NULL) || (buffer == NULL) || (size == 0)) {
 		errno = EINVAL;
 		return -1;
 	}
+
+	if (strlen(interface) > 32) {
+		errno = EINVAL;
+		return -1;
+	}
+
+	char request[128];
+	if (snprintf(request, sizeof(request) - 1, "%s/api/network/wifi/quality?name=%s", REST_API_PREFIX, interface) >= sizeof(request) - 1) {
+		errno = EINVAL;
+		return -1;
+	}
+
 	int err = perform_request(request, "GET", buffer, size);
-	if (err == 0)
-		return 0;
-	errno = EINVAL;
+	switch (err) {
+		case 0:
+			errno = 0;
+			return 0;
+		case 500:
+		default:
+			errno = EIO;
+			break;
+	}
+
 	return -1;
 }
 
@@ -767,8 +1019,8 @@ int eris_get_wifi_quality(const char *interface, char *buffer, size_t size)
 int eris_reboot(void)
 {
 	char reply[128];
-
 	int err = perform_request(REST_API_PREFIX "/api/reboot/now", "POST", reply, sizeof(reply));
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -778,6 +1030,7 @@ int eris_reboot(void)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -786,8 +1039,8 @@ int eris_reboot(void)
 int eris_get_automatic_reboot_flag(void)
 {
 	char reply[128];
-
 	int err = perform_request(REST_API_PREFIX "/api/reboot/automatic", "GET", reply, sizeof(reply));
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -797,6 +1050,7 @@ int eris_get_automatic_reboot_flag(void)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -805,10 +1059,14 @@ int eris_get_automatic_reboot_flag(void)
 int eris_set_automatic_reboot_flag(int flag)
 {
 	char request[128];
-	char reply[128];
+	if (snprintf(request, sizeof(request) - 1, "%s/api/reboot/automatic?auto=%s", REST_API_PREFIX, flag ? "yes" : "no") >= sizeof(request) - 1) {
+		errno = EINVAL;
+		return -1;
+	}
 
-	snprintf(request, sizeof(request) - 1, "%s/api/reboot/automatic?auto=%s", REST_API_PREFIX, flag ? "yes" : "no");
+	char reply[128];
 	int err = perform_request(request, "PUT", reply, sizeof(reply));
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -821,6 +1079,7 @@ int eris_set_automatic_reboot_flag(int flag)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -829,8 +1088,8 @@ int eris_set_automatic_reboot_flag(int flag)
 int eris_get_reboot_pending_flag(void)
 {
 	char reply[128];
-
 	int err = perform_request(REST_API_PREFIX "/api/reboot/pending", "GET", reply, sizeof(reply));
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -840,6 +1099,7 @@ int eris_get_reboot_pending_flag(void)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -848,10 +1108,14 @@ int eris_get_reboot_pending_flag(void)
 int eris_set_reboot_pending_flag(int flag)
 {
 	char request[128];
-	char reply[128];
+	if (snprintf(request, sizeof(request) - 1, "%s/api/reboot/pending?reboot=%s", REST_API_PREFIX, flag ? "yes" : "no") >= sizeof(request) - 1) {
+		errno = EINVAL;
+		return -1;
+	}
 
-	snprintf(request, sizeof(request) - 1, "%s/api/reboot/pending?reboot=%s", REST_API_PREFIX, flag ? "yes" : "no");
+	char reply[128];
 	int err = perform_request(request, "PUT", reply, sizeof(reply));
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -864,6 +1128,7 @@ int eris_set_reboot_pending_flag(int flag)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -872,8 +1137,8 @@ int eris_set_reboot_pending_flag(int flag)
 int eris_rollback(void)
 {
 	char reply[128];
-
 	int err = perform_request(REST_API_PREFIX "/api/reboot/rollback", "POST", reply, sizeof(reply));
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -886,6 +1151,7 @@ int eris_rollback(void)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -894,8 +1160,8 @@ int eris_rollback(void)
 int eris_restore_factory_preset(void)
 {
 	char reply[128];
-
 	int err = perform_request(REST_API_PREFIX "/api/reboot/factory", "POST", reply, sizeof(reply));
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -908,6 +1174,7 @@ int eris_restore_factory_preset(void)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -922,6 +1189,7 @@ int eris_get_list_of_packages(char *buffer, size_t size)
 	}
 
 	int err = perform_request(REST_API_PREFIX "/api/sbom/package/list", "GET", buffer, size);
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -934,6 +1202,7 @@ int eris_get_list_of_packages(char *buffer, size_t size)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -947,9 +1216,13 @@ int eris_get_package_version(const char *name, char *buffer, size_t size)
 	}
 
 	char request[128];
+	if (snprintf(request, sizeof(request) - 1, "%s/api/sbom/package/version?name=%s", REST_API_PREFIX, name) >= sizeof(request) - 1) {
+		errno = EINVAL;
+		return -1;
+	}
 
-	snprintf(request, sizeof(request) - 1, "%s/api/sbom/package/version?name=%s", REST_API_PREFIX, name);
 	int err = perform_request(request, "GET", buffer, size);
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -965,6 +1238,7 @@ int eris_get_package_version(const char *name, char *buffer, size_t size)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -978,9 +1252,13 @@ int eris_get_package_recipe(const char *name, char *buffer, size_t size)
 	}
 
 	char request[128];
+	if (snprintf(request, sizeof(request) - 1, "%s/api/sbom/package/recipe?name=%s", REST_API_PREFIX, name) >= sizeof(request) - 1) {
+		errno = EINVAL;
+		return -1;
+	}
 
-	snprintf(request, sizeof(request) - 1, "%s/api/sbom/package/recipe?name=%s", REST_API_PREFIX, name);
 	int err = perform_request(request, "GET", buffer, size);
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -996,6 +1274,7 @@ int eris_get_package_recipe(const char *name, char *buffer, size_t size)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -1009,9 +1288,13 @@ int eris_get_package_licenses(const char *name, char *buffer, size_t size)
 	}
 
 	char request[128];
+	if (snprintf(request, sizeof(request) - 1, "%s/api/sbom/package/licenses?name=%s", REST_API_PREFIX, name) >= sizeof(request) - 1) {
+		errno = EINVAL;
+		return -1;
+	}
 
-	snprintf(request, sizeof(request) - 1, "%s/api/sbom/package/licenses?name=%s", REST_API_PREFIX, name);
 	int err = perform_request(request, "GET", buffer, size);
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -1027,6 +1310,7 @@ int eris_get_package_licenses(const char *name, char *buffer, size_t size)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -1040,6 +1324,7 @@ int eris_get_list_of_licenses(char *buffer, size_t size)
 	}
 
 	int err = perform_request(REST_API_PREFIX "/api/sbom/license/list", "GET", buffer, size);
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -1052,6 +1337,7 @@ int eris_get_list_of_licenses(char *buffer, size_t size)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -1065,9 +1351,13 @@ int eris_get_license_text(const char *name, char *buffer, size_t size)
 	}
 
 	char request[128];
+	if (snprintf(request, sizeof(request) - 1, "%s/api/sbom/license/text?name=%s", REST_API_PREFIX, name) >= sizeof(request) - 1) {
+		errno = EINVAL;
+		return -1;
+	}
 
-	snprintf(request, sizeof(request) - 1, "%s/api/sbom/license/text?name=%s", REST_API_PREFIX, name);
 	int err = perform_request(request, "GET", buffer, size);
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -1083,6 +1373,7 @@ int eris_get_license_text(const char *name, char *buffer, size_t size)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -1097,6 +1388,7 @@ int eris_get_system_model(char *buffer, size_t size)
 	}
 
 	int err = perform_request(REST_API_PREFIX "/api/system/model", "GET", buffer, size);
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -1106,6 +1398,7 @@ int eris_get_system_model(char *buffer, size_t size)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -1119,6 +1412,7 @@ int eris_get_system_type(char *buffer, size_t size)
 	}
 
 	int err = perform_request(REST_API_PREFIX "/api/system/type", "GET", buffer, size);
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -1128,6 +1422,7 @@ int eris_get_system_type(char *buffer, size_t size)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -1141,6 +1436,7 @@ int eris_get_system_uuid(char *buffer, size_t size)
 	}
 
 	int err = perform_request(REST_API_PREFIX "/api/system/uuid", "GET", buffer, size);
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -1150,6 +1446,7 @@ int eris_get_system_uuid(char *buffer, size_t size)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -1163,6 +1460,7 @@ int eris_get_system_version(char *buffer, size_t size)
 	}
 
 	int err = perform_request(REST_API_PREFIX "/api/system/version", "GET", buffer, size);
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -1172,6 +1470,7 @@ int eris_get_system_version(char *buffer, size_t size)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -1180,8 +1479,8 @@ int eris_get_system_version(char *buffer, size_t size)
 int eris_get_system_update_status(void)
 {
 	char reply[128];
-
 	int err = perform_request(REST_API_PREFIX "/api/system/status", "GET", reply, sizeof(reply));
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -1194,6 +1493,7 @@ int eris_get_system_update_status(void)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -1209,6 +1509,7 @@ int eris_get_ntp_server(char *buffer, size_t size)
 	}
 
 	int err = perform_request(REST_API_PREFIX "/api/time/ntp/server", "GET", buffer, size);
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -1218,6 +1519,7 @@ int eris_get_ntp_server(char *buffer, size_t size)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -1225,16 +1527,20 @@ int eris_get_ntp_server(char *buffer, size_t size)
 
 int eris_set_ntp_server(const char *server)
 {
-	char request[512];
-
 	if (server == NULL) {
 		errno = EINVAL;
 		return -1;
 	}
-	snprintf(request, sizeof(request) - 1, "%s/api/time/ntp/server?server=%s", REST_API_PREFIX, server);
+
+	char request[512];
+	if (snprintf(request, sizeof(request) - 1, "%s/api/time/ntp/server?server=%s", REST_API_PREFIX, server) >= sizeof(request) - 1) {
+		errno = EINVAL;
+		return -1;
+	}
 
 	char reply[127];
 	int err = perform_request(request, "PUT", reply, sizeof(reply));
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -1247,6 +1553,7 @@ int eris_set_ntp_server(const char *server)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -1260,6 +1567,7 @@ int eris_get_ntp_enable(char *buffer, size_t size)
 	}
 
 	int err = perform_request(REST_API_PREFIX "/api/time/ntp", "GET", buffer, size);
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -1269,6 +1577,7 @@ int eris_get_ntp_enable(char *buffer, size_t size)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -1276,17 +1585,20 @@ int eris_get_ntp_enable(char *buffer, size_t size)
 
 int eris_set_ntp_enable(const char *enable)
 {
-	char request[512];
-
 	if (enable == NULL) {
 		errno = EINVAL;
 		return -1;
 	}
 
-	snprintf(request, sizeof(request) - 1, "%s/api/time/ntp?status=%s", REST_API_PREFIX, enable);
+	char request[512];
+	if (snprintf(request, sizeof(request) - 1, "%s/api/time/ntp?status=%s", REST_API_PREFIX, enable) >= sizeof(request) - 1) {
+		errno = EINVAL;
+		return -1;
+	}
 
 	char reply[127];
 	int err = perform_request(request, "PUT", reply, sizeof(reply));
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -1299,6 +1611,7 @@ int eris_set_ntp_enable(const char *enable)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -1312,6 +1625,7 @@ int eris_list_time_zones(char *buffer, size_t size)
 	}
 
 	int err = perform_request(REST_API_PREFIX "/api/time/zone/list", "GET", buffer, size);
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -1321,6 +1635,7 @@ int eris_list_time_zones(char *buffer, size_t size)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -1334,6 +1649,7 @@ int eris_get_time_zone(char *buffer, size_t size)
 	}
 
 	int err = perform_request(REST_API_PREFIX "/api/time/zone", "GET", buffer, size);
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -1343,6 +1659,7 @@ int eris_get_time_zone(char *buffer, size_t size)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -1350,16 +1667,20 @@ int eris_get_time_zone(char *buffer, size_t size)
 
 int eris_set_time_zone(const char *timezone)
 {
-	char request[512];
-
 	if (timezone == NULL) {
 		errno = EINVAL;
 		return -1;
 	}
-	snprintf(request, sizeof(request) - 1, "%s/api/time/zone?zone=%s", REST_API_PREFIX, timezone);
+
+	char request[128];
+	if (snprintf(request, sizeof(request) - 1, "%s/api/time/zone?zone=%s", REST_API_PREFIX, timezone) >= sizeof(request) - 1) {
+		errno = EINVAL;
+		return -1;
+	}
 
 	char reply[128];
 	int err = perform_request(request, "PUT", reply, sizeof(reply));
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -1372,6 +1693,7 @@ int eris_set_time_zone(const char *timezone)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -1385,6 +1707,7 @@ int eris_get_local_time(char *buffer, size_t size)
 	}
 
 	int err = perform_request(REST_API_PREFIX "/api/time/local", "GET", buffer, size);
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -1394,6 +1717,7 @@ int eris_get_local_time(char *buffer, size_t size)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -1407,6 +1731,7 @@ int eris_get_system_time(char *buffer, size_t size)
 	}
 
 	int err = perform_request(REST_API_PREFIX "/api/time/system", "GET", buffer, size);
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -1416,6 +1741,7 @@ int eris_get_system_time(char *buffer, size_t size)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -1423,16 +1749,20 @@ int eris_get_system_time(char *buffer, size_t size)
 
 int eris_set_system_time(const char *time)
 {
-	char request[128];
-
 	if (time == NULL) {
 		errno = EINVAL;
 		return -1;
 	}
-	snprintf(request, sizeof(request) - 1, "%s/api/time/system?time=%s", REST_API_PREFIX, time);
+
+	char request[128];
+	if (snprintf(request, sizeof(request) - 1, "%s/api/time/system?time=%s", REST_API_PREFIX, time) >= sizeof(request) - 1) {
+		errno = EINVAL;
+		return -1;
+	}
 
 	char reply[127];
 	int err = perform_request(request, "PUT", reply, sizeof(reply));
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -1445,6 +1775,7 @@ int eris_set_system_time(const char *time)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -1454,8 +1785,8 @@ int eris_set_system_time(const char *time)
 int eris_feed_watchdog(void)
 {
 	char reply[128];
-
 	int err = perform_request(REST_API_PREFIX "/api/watchdog", "POST", reply, sizeof(reply));
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -1465,6 +1796,7 @@ int eris_feed_watchdog(void)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -1473,8 +1805,8 @@ int eris_feed_watchdog(void)
 int eris_disable_watchdog(void)
 {
 	char reply[128];
-
 	int err = perform_request(REST_API_PREFIX "/api/watchdog", "DELETE", reply, sizeof(reply));
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -1484,6 +1816,7 @@ int eris_disable_watchdog(void)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -1492,8 +1825,8 @@ int eris_disable_watchdog(void)
 int eris_get_watchdog_delay(void)
 {
 	char reply[128];
-
 	int err = perform_request(REST_API_PREFIX "/api/watchdog/delay", "GET", reply, sizeof(reply));
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -1503,6 +1836,7 @@ int eris_get_watchdog_delay(void)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -1511,11 +1845,14 @@ int eris_get_watchdog_delay(void)
 int eris_set_watchdog_delay(int delay)
 {
 	char request[128];
+	if (snprintf(request, sizeof(request) - 1, "%s/api/watchdog/delay?delay=%d", REST_API_PREFIX, delay) >= sizeof(request) - 1) {
+		errno = EINVAL;
+		return -1;
+	}
+
 	char reply[128];
-
-	snprintf(request, sizeof(request) - 1, "%s/api/watchdog/delay?delay=%d", REST_API_PREFIX, delay);
-
 	int err = perform_request(request, "PUT", reply, sizeof(reply));
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -1528,6 +1865,7 @@ int eris_set_watchdog_delay(int delay)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -1541,6 +1879,7 @@ int eris_watchdog_feeder_status(char *buffer, size_t size)
 	}
 
 	int err = perform_request(REST_API_PREFIX "/api/watchdog/feeder", "GET", buffer, size);
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -1550,6 +1889,7 @@ int eris_watchdog_feeder_status(char *buffer, size_t size)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -1558,8 +1898,8 @@ int eris_watchdog_feeder_status(char *buffer, size_t size)
 int eris_start_watchdog_feeder(void)
 {
 	char reply[128];
-
 	int err = perform_request(REST_API_PREFIX "/api/watchdog/feeder", "POST", reply, sizeof(reply));
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -1572,6 +1912,7 @@ int eris_start_watchdog_feeder(void)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
@@ -1580,8 +1921,8 @@ int eris_start_watchdog_feeder(void)
 int eris_stop_watchdog_feeder(void)
 {
 	char reply[128];
-
 	int err = perform_request(REST_API_PREFIX "/api/watchdog/feeder", "DELETE", reply, sizeof(reply));
+
 	switch (err) {
 		case 0:
 			errno = 0;
@@ -1594,6 +1935,7 @@ int eris_stop_watchdog_feeder(void)
 			errno = EIO;
 			break;
 	}
+
 	return -1;
 }
 
