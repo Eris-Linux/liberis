@@ -32,8 +32,8 @@ extern "C" {
  * @details
  *
  * Asking to explicitly contact the server is especially usefull when the
- * period of contact is zero. Otherwise it may be needed to report a new
- * condition on a container for example.
+ * period of contact is zero. Another use case is to report a new condition
+ * on a container for example.
  */
 int eris_contact_server(void);
 
@@ -48,7 +48,7 @@ int eris_contact_server(void);
  * @details
  *
  * If the period is 0, the device will contact the server only when explicitly
- * asked by `eris_contact_server()` method (see below).
+ * asked by @ref eris_contact_server() method.
  */
 int eris_get_server_contact_period(void);
 
@@ -58,14 +58,14 @@ int eris_get_server_contact_period(void);
  *
  * @ingroup CONTACT
  *
- * @param the period in seconds.
+ * @param perido  the period between contact in seconds.
  *
  * @returns 0 on success or -1 on error and errno is set appropriately.
  *
  * @details
  *
- * If the period is 0, the device will contact the server only when explicitly
- * asker by `eris_contact_server` (see below).
+ * If @p period is 0, the device will contact the server only when explicitly
+ * asked by @ref eris_contact_server().
  */
 int eris_set_server_contact_period(int period);
 
@@ -79,7 +79,7 @@ int eris_set_server_contact_period(int period);
  */
 
 /**
- * @brief Return the maximal number if containers allowed.
+ * @brief Return the maximal number of containers allowed.
  *
  * @ingroup CONTAINERS
  *
@@ -111,7 +111,7 @@ int eris_get_number_of_slots(void);
  * buffer will be empty.
  *
  * The name of the container is remotely set by the device manager and can not
- * be modified from the target.
+ * be modified on the target device.
  *
  */
 int eris_get_container_name(int slot, char *buffer, size_t size);
@@ -122,7 +122,7 @@ int eris_get_container_name(int slot, char *buffer, size_t size);
  *
  * @ingroup CONTAINERS
  *
- * @param slot      The number of the slot hosting the container.
+ * @param slot      The number of the slot to check.
  *
  * @return 1 if a container is present in the slot, 0 if the slot is empty, -1
  *  on error and errno is set appropriately.
@@ -148,8 +148,7 @@ int eris_get_container_presence(int slot);
  * currently hosted in the indicated slot. If the slot doesn't host any
  * container, the buffer will be empty.
  *
- * The version status is one of the following strings:
- * "running" or "stopped".
+ * The status is one of the following strings: `running` or `stopped`.
  *
  */
 int eris_get_container_status(int container, char *buffer, size_t size);
@@ -178,12 +177,13 @@ int eris_get_container_status(int container, char *buffer, size_t size);
  */
 int eris_get_container_version(int container, char *buffer, size_t size);
 
+
 /**
  * @brief  Read the container update policy.
  *
  * @ingroup CONTAINERS
  *
- * @retval 0  Update of container content only after system reboot.
+ * @retval 0  Update container content only after system reboot.
  * @retval 1  Immediate restart of container after content update.
  * @retval -1 An error has occured during the request, errno is set appropriately.
  *
@@ -222,7 +222,7 @@ int eris_set_container_update_policy(int policy);
 
 /**
  *  @defgroup GPIO
- *  @brief Functions to communicate using GPIO lines.
+ *  @brief Functions to communicate with equipments using GPIO.
  */
 
 /**
@@ -261,6 +261,9 @@ int eris_get_list_of_gpio(char *buffer, size_t size);
  *
  * @details
  *
+ * @p id is the string contained in the `id` field of a GPIO object
+ * returned by @ref eris_get_list_of_gpio().
+ *
  */
 int eris_request_gpio_for_input(const char *id);
 
@@ -277,6 +280,9 @@ int eris_request_gpio_for_input(const char *id);
  *
  * @details
  *
+ * @p `id` is the string contained in the `id` field of a GPIO object
+ * returned by @ref eris_get_list_of_gpio().
+ *
  */
 int eris_request_gpio_for_output(const char *id, int value);
 
@@ -292,6 +298,7 @@ int eris_request_gpio_for_output(const char *id, int value);
  *
  */
 int eris_release_gpio(const char *id);
+
 
 /**
  * @brief Read the value on a GPIO configured in input.
@@ -321,6 +328,7 @@ int eris_read_gpio_value(const char *id);
 int eris_write_gpio_value(const char *id, int value);
 
 
+
 /*****************************************************************************/
 
 /**
@@ -329,16 +337,9 @@ int eris_write_gpio_value(const char *id, int value);
  */
 
 /**
- * @defgroup NETCONFIG
- * @ingroup  NETWORK
- * @brief    This is a group of functions to configure network interfaces.
- *
- */
-
-/**
  * @brief Get a list of network interfaces.
  *
- * @ingroup NETCONFIG
+ * @ingroup NETWORK
  *
  * @param buffer    The buffer to fill with the list.
  * @param size      The size of the buffer.
@@ -382,10 +383,11 @@ int eris_write_gpio_value(const char *id, int value);
  */
 int eris_get_list_of_network_interfaces(char *buffer, size_t size);
 
+
 /**
  * @brief Get the status of a network interface.
  *
- * @ingroup NETCONFIG
+ * @ingroup NETWORK
  *
  * @param interface The name of the interface considered.
  * @param buffer    The buffer to fill with the status.
@@ -398,29 +400,18 @@ int eris_get_list_of_network_interfaces(char *buffer, size_t size);
  * This function fills the provided buffer with "up" or "down" depending on
  * the status of the interface.
  *
- * Example of use:
- * @code
- * int display_status(const char *interface)
- * {
- *   char buffer[8];
- *
- *   if (get_network_interface_status(interface, buffer, 8) < 0)
- *     return -1;
- *   printf("%s: %s\n", interface, buffer);
- *   return 0;
- * }
- * @endcode
  */
 int eris_get_network_interface_status(const char *interface, char *buffer, size_t size);
+
 
 /**
  * @brief Activate or disactivate a network interface.
  *
- * @ingroup NETCONFIG
+ * @ingroup NETWORK
  *
  * This function enables the interface if @p status is "up", or disables it
  * if @p status is "down". Any other string than "up" or "down" is invalid and
- * this function returns @ref ERR_INVALID_ARGUMENT.
+ * this function returns @ref EINVAL in `errno`.
  *
  * If the interface activation fails, the function will returns an error.
  *
@@ -431,10 +422,11 @@ int eris_get_network_interface_status(const char *interface, char *buffer, size_
  */
 int eris_set_network_interface_status(const char *interface, const char *status);
 
+
 /**
  * @brief Get the configuration of a network interface.
  *
- * @ingroup NETCONFIG
+ * @ingroup NETWORK
  *
  * @param interfacce  The name of the interface considered.
  * @param buffer      The buffer to fill with the configuration.
@@ -456,14 +448,14 @@ int eris_set_network_interface_status(const char *interface, const char *status)
  * - the gateway address to access Internet (only if the third field is `static`)
  * - the address of the DNS name server (only if the third field is `static`)
  *
- * Example of use:
  */
 int eris_get_network_interface_config(const char *interface, char *buffer, size_t size);
+
 
 /**
  * @brief Set the configuration of a network interface.
  *
- * @ingroup NETCONFIG
+ * @ingroup NETWORK
  * @param interface The name of the interface considered.
  * @param activate  `atboot` if the interface has to be activated at boot, `ondemand` otherwise.
  * @param mode      `dhcp` if the address is automatically affected or `static` otherwise.
@@ -483,24 +475,31 @@ int eris_get_network_interface_config(const char *interface, char *buffer, size_
  * @endcode
  */
 int eris_set_network_interface_config(const char *interface, const char *autoconf,
-                                 const char *mode, const char *ip, 
+                                 const char *mode, const char *ip,
                                  const char *address, const char *netmask,
                                  const char *gateway);
+
 
 /**
  * @brief Get the IP address of the Domain Name Server.
  *
- * @ingroup NETCONFIG
+ * @ingroup NETWORK
  * @param buffer      The buffer to fill with the address.
  * @param size        The size of the buffer.
  *
  * @return 0 on success, -1 on error and errno is set appropriately.
  *
+ * @details
+ *
+ * Example of use:
+ * @code
  *   char buffer[128];
  *   if (eris_get_nameserver_address(buffer, 128) < 0)
  *     return -1;
+ * @endcode
  */
 int eris_get_nameserver_address(char *buffer, size_t size);
+
 
 /**
  * @brief Set the IP address of the Domain Name Server.
@@ -521,16 +520,9 @@ int eris_set_nameserver_address(const char *address);
 
 
 /**
- * @defgroup WIFI
- * @ingroup  NETWORK
- * @brief    This is a group of functions to scan and connect to a wifi server.
- *
- */
-
-/**
  * @brief Indicate whether a network interface is wireless or not.
  *
- * @ingroup WIFI
+ * @ingroup NETWORK
  *
  * @param interface  the name of the interface.
  *
@@ -542,10 +534,11 @@ int eris_set_nameserver_address(const char *address);
  */
 int eris_is_network_interface_wireless(const char *interface);
 
+
 /**
  * @brief Scan the available Wifi access points.
  *
- * @ingroup WIFI
+ * @ingroup NETWORK
  *
  * @param interface  The name of the interface.
  * @param buffer     The buffer to fill with SSID of access points.
@@ -564,10 +557,11 @@ int eris_is_network_interface_wireless(const char *interface);
  */
 int eris_scan_wifi(const char *interface, char *buffer, size_t size);
 
+
 /**
  * @brief Connect to a Wifi access point.
  *
- * @ingroup WIFI
+ * @ingroup NETWORK
  *
  * @param interface  The name of the interface.
  * @param ssid       The identifier of the access point.
@@ -580,10 +574,11 @@ int eris_scan_wifi(const char *interface, char *buffer, size_t size);
  */
 int eris_connect_wifi(const char *interface, const char *ssid, const char *password);
 
+
 /**
  * @brief Disconnect to any Wifi access points.
  *
- * @ingroup WIFI
+ * @ingroup NETWORK
  *
  * @return 0 on success, -1 on error and errno is set appropriately.
  *
@@ -592,10 +587,11 @@ int eris_connect_wifi(const char *interface, const char *ssid, const char *passw
  */
 int eris_disconnect_wifi(void);
 
+
 /**
  * @brief Get the Wifi connection quality.
  *
- * @ingroup WIFI
+ * @ingroup NETWORK
  *
  * @param interface  The name of the interface.
  * @param buffer     The buffer to fill with Wifi quality.
@@ -631,7 +627,7 @@ int eris_get_wifi_quality(const char *interface, char *buffer, size_t size);
  */
 
 /**
- * @brief  Reboot the system.
+ * @brief  Reboot the system as soon as possible.
  *
  * @ingroup REBOOT
  *
@@ -647,6 +643,7 @@ int eris_get_wifi_quality(const char *interface, char *buffer, size_t size);
  *
  */
 int eris_reboot(void);
+
 
 /**
  * @brief  Read the Automatic-Reboot flag
