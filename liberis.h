@@ -707,7 +707,7 @@ int eris_set_automatic_reboot_flag(int autoreboot);
  * Please avoid starting time-consuming tasks or large data writing programs
  * when the flag is set.
  */
-int eris_get_reboot_needed_flag(void);
+int eris_get_reboot_pending_flag(void);
 
 
 /**
@@ -720,7 +720,7 @@ int eris_get_reboot_needed_flag(void);
  * @return 0 on success and  -1 on error and errno is set appropriately.
  *
  */
-int eris_set_reboot_needed_flag(int flag);
+int eris_set_reboot_pending_flag(int flag);
 
 
 /**
