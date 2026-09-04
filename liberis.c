@@ -1016,7 +1016,7 @@ int eris_get_wifi_quality(const char *interface, char *buffer, size_t size)
 
 /******************************* REBOOT **************************************/
 
-int eris_reboot(void)
+int eris_reboot_now(void)
 {
 	char reply[128];
 	int err = perform_request(REST_API_PREFIX "/api/reboot/now", "POST", reply, sizeof(reply));

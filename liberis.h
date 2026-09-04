@@ -642,7 +642,7 @@ int eris_get_wifi_quality(const char *interface, char *buffer, size_t size);
  * suffer from an inconsistent state when restarting.
  *
  */
-int eris_reboot(void);
+int eris_reboot_now(void);
 
 
 /**
