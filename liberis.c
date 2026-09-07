@@ -1583,19 +1583,17 @@ int eris_set_ntp_server(const char *server)
 
 
 
-int eris_get_ntp_enable(char *buffer, size_t size)
+int eris_get_ntp_enable(void)
 {
-	if ((buffer == NULL) || (size == 0)) {
-		errno = EINVAL;
-		return -1;
-	}
+
+	char buffer[512];
 
 	int err = perform_request(REST_API_PREFIX "/api/time/ntp", "GET", buffer, size);
 
 	switch (err) {
 		case 0:
 			errno = 0;
-			return 0;
+			return ((buffer[0] == 'y') || (buffer[0] == 'Y'));
 		case 500:
 		default:
 			errno = EIO;
@@ -1607,15 +1605,10 @@ int eris_get_ntp_enable(char *buffer, size_t size)
 
 
 
-int eris_set_ntp_enable(const char *enable)
+int eris_set_ntp_enable(int enable)
 {
-	if (enable == NULL) {
-		errno = EINVAL;
-		return -1;
-	}
-
 	char request[512];
-	if (snprintf(request, sizeof(request) - 1, "%s/api/time/ntp?status=%s", REST_API_PREFIX, enable) >= sizeof(request) - 1) {
+	if (snprintf(request, sizeof(request) - 1, "%s/api/time/ntp?status=%s", REST_API_PREFIX, enable ? "yes" : "no") >= sizeof(request) - 1) {
 		errno = EINVAL;
 		return -1;
 	}

@@ -1070,15 +1070,9 @@ int eris_set_ntp_server(const char *server);
  *
  * @ingroup TIME
  *
- * This functions fills the provided buffer with the string `yes` or `no`
- * depending whether the NTP usage is currently enabled or disabled.
- *
- * @param buffer    the buffer to fill with the NTP status.
- * @param size      the size of the buffer.
- *
- * @return 0 on success, -1 on error and errno is set appropriately.
+ * @return `1` if the NTP protocol is enabled or `0 otherwise.
  */
-int eris_get_ntp_enable(char *buffer, size_t size);
+int eris_get_ntp_enable(void);
 
 
 /**
@@ -1086,14 +1080,14 @@ int eris_get_ntp_enable(char *buffer, size_t size);
  *
  * @ingroup TIME
  *
- * This function stores the NTP status (`yes` or `no`) to enable or disable
+ * This function stores the NTP status (`1` or `0`) to enable or disable
  * NTP usage.
  *
- * @param status   `yes` or `no`.
+ * @param status   `0` or `1`.
  *
  * @return 0 on success, -1 on error and errno is set appropriately.
  */
-int eris_set_ntp_enable(const char *status);
+int eris_set_ntp_enable(int status);
 
 
 /**
