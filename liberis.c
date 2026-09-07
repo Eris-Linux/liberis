@@ -1380,6 +1380,30 @@ int eris_get_license_text(const char *name, char *buffer, size_t size)
 
 /****************************** SYSTEM ***************************************/
 
+int eris_get_system_kernel(char *buffer, size_t size)
+{
+	if ((buffer == NULL) || (size == 0)) {
+		errno = EINVAL;
+		return -1;
+	}
+
+	int err = perform_request(REST_API_PREFIX "/api/system/kernel", "GET", buffer, size);
+
+	switch (err) {
+		case 0:
+			errno = 0;
+			return 0;
+		case 500:
+		default:
+			errno = EIO;
+			break;
+	}
+
+	return -1;
+}
+
+
+
 int eris_get_system_model(char *buffer, size_t size)
 {
 	if ((buffer == NULL) || (size == 0)) {
