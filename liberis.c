@@ -1588,7 +1588,7 @@ int eris_get_ntp_enable(void)
 
 	char buffer[512];
 
-	int err = perform_request(REST_API_PREFIX "/api/time/ntp", "GET", buffer, size);
+	int err = perform_request(REST_API_PREFIX "/api/time/ntp", "GET", buffer, sizeof(buffer));
 
 	switch (err) {
 		case 0:
